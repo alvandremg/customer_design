@@ -59,7 +59,10 @@
 
     async function procesarRuta(ruta, keyIndex) {
       const key = API_KEYS[keyIndex % API_KEYS.length];
-      const url = `https://api.openrouteservice.org/v2/directions/foot-walking/geojson`;
+      const proxyUrl = "https://corsproxy.io/?";
+      const apiUrl = "https://api.openrouteservice.org/v2/directions/foot-walking/geojson";
+      const url = proxyUrl + encodeURIComponent(apiUrl);
+
       const body = {
         coordinates: [[ruta.lon1, ruta.lat1], [ruta.lon2, ruta.lat2]],
         preference: "shortest"
