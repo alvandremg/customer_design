@@ -75,8 +75,10 @@
           body: JSON.stringify(body)
         });
 
-        if (!res.ok) throw { code: res.status };
-        const data = await res.json();
+        const errorText = await res.text();
+        if (!res.ok) throw { code: res.status, message: errorText };
+
+        const data = JSON.parse(errorText);
         const coords = data.features[0].geometry.coordinates;
         const dist = data.features[0].properties.summary.distance;
 
@@ -93,10 +95,10 @@
         return keyIndex;
 
       } catch (err) {
+        resultados.push(`${ruta.name}: -, Revisar manual (Error ${err.code}: ${err.message || 'desconocido'})`);
         if (err.code === 403 || err.code === 429) {
-          return keyIndex + 1; // cambiar clave
+          return keyIndex + 1;
         } else {
-          resultados.push(`${ruta.name}: -, Revisar manual (Error inesperado)`);
           return keyIndex;
         }
       }
@@ -114,7 +116,7 @@
       for (let i = 0; i < rutas.length; i++) {
         keyIndex = await procesarRuta(rutas[i], keyIndex);
         log(`[${i + 1}/${rutas.length}] ${rutas[i].name}`);
-        await new Promise(r => setTimeout(r, 200)); // para evitar rate limit
+        await new Promise(r => setTimeout(r, 200));
       }
 
       generarArchivos();
